@@ -22,6 +22,8 @@
     systemd.tmpfiles.rules = [
         # Core Web Directory
         "d /var/www/tty.garden - root nginx -"
+        # Well-known storage
+        "d /var/www/well-known - root nginx -"
         # Mirrors
         "d /var/www/mirror - root nginx -"
         "d /var/www/mirror/maple - ahill nginx -"
@@ -41,6 +43,10 @@
 
                 # TODO: User public_html folders
                 # Use disable symlinks with `if_not_owner` and from=$HOME for user
+
+                locations."^~ /.well-known/" = {
+                    alias = "/var/www/well-known/";
+                };
             };
             "seed.tty.garden" = vhostDefault // {
                 locations."/" = {
@@ -52,6 +58,14 @@
 
                 locations."/" = {
                     extraConfig = "autoindex on;";
+                };
+            };
+            "pds.tty.garden" = vhostDefault // {
+                serverAliases = [ ".pds.tty.garden" ];
+
+                locations."/" = {
+                    proxyPass = "http://127.0.0.1:3001";
+                    proxyWebsockets = true;
                 };
             };
         };

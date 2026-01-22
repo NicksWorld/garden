@@ -13,6 +13,7 @@
 
         ./modules/nginx.nix
         ./modules/gitea.nix
+        ./modules/pds.nix
     ];
 
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
