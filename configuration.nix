@@ -1,0 +1,72 @@
+{
+    self,
+    inputs,
+    modulesPath,
+    lib,
+    pkgs,
+    ...
+}:
+{
+    imports = [
+        (modulesPath + "/profiles/qemu-guest.nix")
+        ./modules/disk-config.nix
+
+        ./modules/nginx.nix
+        ./modules/gitea.nix
+    ];
+
+    nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+    system.stateVersion = "25.11";
+    nixpkgs.hostPlatform = "x86_64-linux";
+    hardware.enableRedistributableFirmware = true;
+    networking.hostName = "garden";
+    time.timeZone = "UTC";
+
+    networking.useDHCP = true;
+    boot.kernelParams = [ "net.ifnames=0" ];
+    networking.firewall = {
+        enable = true;
+        allowedTCPPorts = [ 22 80 443 ];
+        allowedUDPPorts = [ 22 ];
+        allowedUDPPortRanges = [
+            { from = 4000; to = 4007; }
+            { from = 8000; to = 8010; }
+        ];
+    };
+
+    boot.loader.grub = {
+        efiSupport = true;
+        efiInstallAsRemovable = true;
+    };
+
+    users.users.admin = {
+        isNormalUser = true;
+        openssh.authorizedKeys.keys = [
+            "sk-ecdsa-sha2-nistp256@openssh.com AAAAInNrLWVjZHNhLXNoYTItbmlzdHAyNTZAb3BlbnNzaC5jb20AAAAIbmlzdHAyNTYAAABBBEyvP3QsMUk8k+h/gjmHUZvic/lKVfQDNISIhwiJ4OArcvo8Y1c9Hg+wagVkSw3xA+ggBQw/E7VYoMvx/JtcAQsAAAAEc3NoOg== ssh:"
+        ];
+        extraGroups = [ "wheel" ];
+    };
+
+    services.openssh = {
+        enable = true;
+        settings = {
+            PermitRootLogin = "no";
+            PasswordAuthentication = false;
+        };
+    };
+
+    # Global packages
+    environment.systemPackages = with pkgs; [
+        neovim
+        nano
+        git
+    ];
+
+    programs.bash.completion.enable = true;
+
+    security.sudo = {
+        enable = true;
+        wheelNeedsPassword = false;
+    };
+}
