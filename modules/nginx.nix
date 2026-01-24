@@ -22,8 +22,6 @@
     systemd.tmpfiles.rules = [
         # Core Web Directory
         "d /var/www/tty.garden - root nginx -"
-        # Well-known storage
-        "d /var/www/well-known - root nginx -"
         # Mirrors
         "d /var/www/mirror - root nginx -"
         "d /var/www/mirror/maple - ahill nginx -"
@@ -34,6 +32,15 @@
         addSSL = true;
         useACMEHost = "tty.garden";
         acmeRoot = null;
+    };
+    pdsProxy = {
+        # Used for handle verification
+        proxyPass = "http://127.0.0.1:3001";
+        extraConfig =
+        ''
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        '';
     }; in {
         enable = true;
         
@@ -41,12 +48,7 @@
             "tty.garden" = vhostDefault // {
                 root = "/var/www/tty.garden";
 
-                # TODO: User public_html folders
-                # Use disable symlinks with `if_not_owner` and from=$HOME for user
-
-                locations."^~ /.well-known/" = {
-                    alias = "/var/www/well-known/";
-                };
+                locations."^~ /.well-known/" = pdsProxy;
             };
             "seed.tty.garden" = vhostDefault // {
                 locations."/" = {
@@ -67,6 +69,9 @@
                     proxyPass = "http://127.0.0.1:3001";
                     proxyWebsockets = true;
                 };
+            };
+            "*.tty.garden" = vhostDefault // {
+                locations."~/.well-known/" = pdsProxy;
             };
         };
     };
