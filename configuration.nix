@@ -14,6 +14,7 @@
         ./modules/nginx.nix
         ./modules/gitea.nix
         ./modules/pds.nix
+        ./modules/restic.nix
     ];
 
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -43,6 +44,7 @@
 
     users.users.admin = {
         isNormalUser = true;
+        shell = pkgs.zsh;
         openssh.authorizedKeys.keys = [
             "sk-ecdsa-sha2-nistp256@openssh.com AAAAInNrLWVjZHNhLXNoYTItbmlzdHAyNTZAb3BlbnNzaC5jb20AAAAIbmlzdHAyNTYAAABBBEyvP3QsMUk8k+h/gjmHUZvic/lKVfQDNISIhwiJ4OArcvo8Y1c9Hg+wagVkSw3xA+ggBQw/E7VYoMvx/JtcAQsAAAAEc3NoOg== ssh:"
         ];
@@ -59,11 +61,14 @@
 
     # Global packages
     environment.systemPackages = with pkgs; [
+        zsh
+        fish
         neovim
         nano
         git
     ];
 
+    programs.zsh.enable = true;
     programs.bash.completion.enable = true;
 
     security.sudo = {

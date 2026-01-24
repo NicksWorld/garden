@@ -3,6 +3,8 @@
     services.gitea = {
         enable = true;
 
+        dump.enable = true;
+
         settings = {
             service.DISABLE_REGISTRATION = true;
             server = {
