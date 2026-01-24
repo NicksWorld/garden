@@ -71,6 +71,9 @@
                 };
             };
             "*.tty.garden" = vhostDefault // {
+                locations."/" = {
+                    return = "301 https://tty.garden";
+                };
                 locations."~/.well-known/" = pdsProxy;
             };
         };
