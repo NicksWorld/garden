@@ -10,6 +10,10 @@
             server = {
                 ROOT_URL = "https://seed.tty.garden/";
             };
+
+            actions = {
+                ENABLED = false;
+            };
         };
     };
 }
