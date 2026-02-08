@@ -19,6 +19,23 @@
 
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+    system.autoUpgrade = {
+        enable = true;
+        flake = inputs.self.outPath;
+        flags = [
+            "-L"
+        ];
+
+        allowReboot = true;
+        rebootWindow = {
+            lower = "03:00";
+            upper = "05:00";
+        };
+
+        dates = "02:00";
+        randomizedDelaySec = "45min";
+    };
+
     system.stateVersion = "25.11";
     nixpkgs.hostPlatform = "x86_64-linux";
     hardware.enableRedistributableFirmware = true;
