@@ -14,6 +14,7 @@
         ./modules/nginx.nix
         ./modules/gitea.nix
         ./modules/pds.nix
+        ./modules/mail.nix
         ./modules/restic.nix
     ];
 

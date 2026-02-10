@@ -10,6 +10,7 @@
             paths = [
                 "/var/www" # Webserver data
                 "/var/lib/pds" # ATProto PDS
+                "/var/vmail" # Email Mailbox
                 "/home" # User data
                 "${config.services.gitea.stateDir}/dump" # Gitea repository
             ];
