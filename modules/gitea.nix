@@ -19,6 +19,11 @@
                 DEFAULT_THEME = "catppuccin-maroon-auto";
                 THEMES = "catppuccin-maroon-auto,catppuccin-latte-maroon,catppuccin-mocha-maroon";
             };
+
+            log = {
+                ACCESS = ",";
+                ENABLE_ACCESS_LOG = true;
+            };
         };
     };
 

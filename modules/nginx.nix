@@ -1,4 +1,4 @@
-{config, ...}:
+{pkgs, config, ...}:
 {
     security.acme = {
         acceptTerms = true;
@@ -28,62 +28,79 @@
     ];
 
     services.nginx =
-    let vhostDefault = {
-        addSSL = true;
-        useACMEHost = "tty.garden";
-        acmeRoot = null;
-    };
-    pdsProxy = {
-        # Used for handle verification
-        proxyPass = "http://127.0.0.1:3001";
-        extraConfig =
-        ''
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        '';
-    }; in {
+    let
+        robots = pkgs.fetchzip {
+            url = "https://github.com/ai-robots-txt/ai.robots.txt/archive/refs/tags/v1.44.tar.gz";
+            sha256 = "14jfkymkrs51xkgf48rin01kcfmk043zkdyzfhb459fv3brxms50";
+        };
+        vhostDefault = {
+            addSSL = true;
+            useACMEHost = "tty.garden";
+            acmeRoot = null;
+
+            locations."= /robots.txt" = {
+                alias = "${robots}/robots.txt";
+            };
+        };
+        forwardingRules =
+            ''
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            '';
+        pdsProxy = {
+            # Used for handle verification
+            proxyPass = "http://127.0.0.1:3001";
+            extraConfig = forwardingRules;
+        };
+    in
+    {
         enable = true;
         
         virtualHosts = {
             "tty.garden" = vhostDefault // {
                 root = "/var/www/tty.garden";
 
-                locations."^~ /.well-known/" = pdsProxy;
+                locations = vhostDefault.locations // {
+                    "^~ /.well-known/" = pdsProxy;
+                };
             };
             "seed.tty.garden" = vhostDefault // {
-                locations."/" = {
-                    proxyPass = "http://127.0.0.1:3000";
-                    extraConfig =
-                    ''
-                    proxy_set_header Host $host;
-                    proxy_set_header X-Real-IP $remote_addr;
-                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto $scheme;
-                    '';
+                locations = vhostDefault.locations // {
+                    "/" = {
+                        proxyPass = "http://127.0.0.1:3000";
+                        extraConfig = forwardingRules;
+                    };
                 };
             };
             "mirror.tty.garden" = vhostDefault // {
                 root = "/var/www/mirror";
 
-                locations."/" = {
-                    extraConfig = "autoindex on;";
+                locations = vhostDefault.locations // {
+                    "/" = {
+                        extraConfig = "autoindex on;";
+                    };
                 };
             };
             "pds.tty.garden" = vhostDefault // {
                 serverAliases = [ ".pds.tty.garden" ];
 
-                locations."/" = {
-                    proxyPass = "http://127.0.0.1:3001";
-                    proxyWebsockets = true;
+                locations = vhostDefault.locations // {
+                    "/" = {
+                        proxyPass = "http://127.0.0.1:3001";
+                        proxyWebsockets = true;
+                        extraConfig = forwardingRules;
+                    };
                 };
             };
             "*.tty.garden" = vhostDefault // {
-                locations."/" = {
-                    return = "301 https://tty.garden";
+                locations = vhostDefault.locations // {
+                    "/" = {
+                        return = "301 https://tty.garden";
+                    };
+                    "~/.well-known/" = pdsProxy;
                 };
-                locations."~/.well-known/" = pdsProxy;
             };
         };
     };
