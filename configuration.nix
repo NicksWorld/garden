@@ -11,6 +11,7 @@
         (modulesPath + "/profiles/qemu-guest.nix")
         ./modules/disk-config.nix
 
+        ./modules/networking.nix
         ./modules/nginx.nix
         ./modules/gitea.nix
         ./modules/pds.nix
@@ -42,18 +43,6 @@
     hardware.enableRedistributableFirmware = true;
     networking.hostName = "garden";
     time.timeZone = "UTC";
-
-    networking.useDHCP = true;
-    boot.kernelParams = [ "net.ifnames=0" ];
-    networking.firewall = {
-        enable = true;
-        allowedTCPPorts = [ 22 80 443 ];
-        allowedUDPPorts = [ 22 ];
-        allowedUDPPortRanges = [
-            { from = 4000; to = 4007; }
-            { from = 8000; to = 8010; }
-        ];
-    };
 
     boot.loader.grub = {
         efiSupport = true;
