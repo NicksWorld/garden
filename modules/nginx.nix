@@ -102,6 +102,14 @@
                     "~/.well-known/" = pdsProxy;
                 };
             };
+            "default" = vhostDefault // {
+                default = true;
+                locations = {
+                    "/" = {
+                        return = "403";
+                    };
+                };
+            };
         };
     };
 }
