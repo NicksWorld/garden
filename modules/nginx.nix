@@ -64,6 +64,9 @@
 
                 locations = vhostDefault.locations // {
                     "^~ /.well-known/" = pdsProxy;
+                    "/" = {
+                        tryFiles = "$uri $uri.html $uri/index.html index.html";
+                    };
                 };
             };
             "seed.tty.garden" = vhostDefault // {
