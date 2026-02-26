@@ -15,14 +15,17 @@
                 ENABLED = false;
             };
 
+            indexer = {
+                REPO_INDEXER_ENABLED = true;
+            };
+
+            "highlight.mapping" = {
+                ".skr" = "scheme";
+            };
+
             ui = {
                 DEFAULT_THEME = "catppuccin-maroon-auto";
                 THEMES = "catppuccin-maroon-auto,catppuccin-latte-maroon,catppuccin-mocha-maroon";
-            };
-
-            log = {
-                ACCESS = ",";
-                ENABLE_ACCESS_LOG = true;
             };
         };
     };
